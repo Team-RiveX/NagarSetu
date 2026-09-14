@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<title>Civic Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#081712; --bg-soft:#0b1e17; --card:#0f251c; --card-2:#132c21; --card-3:#173523;
+  --hero-a:#1f7a54; --hero-b:#0c2e21;
+  --accent:#3fd587; --accent-strong:#2fbd73; --accent-ink:#052b19;
+  --text:#eef7f1; --text-dim:#a9c4b6; --text-faint:#688072;
+  --border:#1c3c2c; --border-soft:#152a20;
+  --danger:#ff8a80; --danger-bg:#3a1b1e;
+  --warning:#f0b95e; --warning-bg:#332608;
+  --info:#7fb8e0; --chip-bg:#122a1f;
+  --radius-xl:26px; --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+  --font-display:'Space Grotesk', sans-serif; --font-body:'Manrope', sans-serif;
+}
+html,body{height:100%;}
+body{font-family:var(--font-body);background:#04100b;color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;}
+button,input,textarea{font-family:inherit;color:inherit;}
+button{cursor:pointer;background:none;border:none;}
+input,textarea{background:none;border:none;outline:none;width:100%;}
+::selection{background:var(--accent);color:var(--accent-ink);}
+::-webkit-scrollbar{width:0;height:0;}
+
+#stage{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 12px;}
+#phone{position:relative;width:412px;max-width:100%;height:860px;max-height:calc(100vh - 24px);background:var(--bg);border-radius:44px;border:10px solid #05100b;box-shadow:0 30px 80px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(63,213,135,.08);overflow:hidden;display:flex;flex-direction:column;}
+#statusbar{flex:none;display:flex;align-items:center;justify-content:space-between;padding:14px 26px 6px;font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--text);position:relative;z-index:5;}
+#statusbar .icons{display:flex;align-items:center;gap:5px;}
+#statusbar svg{width:17px;height:17px;}
+#app{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth;}
+#app::-webkit-scrollbar{display:none;}
+.screen{min-height:100%;display:flex;flex-direction:column;animation:screenIn .32s cubic-bezier(.2,.8,.3,1);}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media (prefers-reduced-motion: reduce){.screen{animation:none;}}
+
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+h1.title{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1.15;margin-top:4px;color:var(--text);}
+h2.section-title{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px;}
+.muted{color:var(--text-dim);} .faint{color:var(--text-faint);}
+
+.pad{padding:20px 20px 28px;}
+.stack{display:flex;flex-direction:column;gap:14px;}
+.row{display:flex;align-items:center;}
+.between{justify-content:space-between;}
+.gap8{gap:8px;} .gap6{gap:6px;} .gap10{gap:10px;} .gap12{gap:12px;}
+.icon{width:16px;height:16px;display:inline-block;vertical-align:-3px;flex:none;}
+.icon-lg{width:22px;height:22px;}
+.btn-link{background:none;border:none;color:var(--accent,#4f46e5);cursor:pointer;padding:4px 0;}
+.btn-link:hover{text-decoration:underline;}
+
+.topbar{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:10px;}
+.iconbtn{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--card-2);color:var(--text);flex:none;}
+.iconbtn:active{transform:scale(.92);}
+.topbar-title{font-family:var(--font-display);font-weight:600;font-size:15px;color:var(--text);}
+
+.hero-card{margin:14px 20px 0;border-radius:var(--radius-xl);padding:30px 24px 26px;background:linear-gradient(160deg, var(--hero-a), var(--hero-b) 85%);position:relative;overflow:hidden;}
+.hero-card::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,.10), transparent 70%);}
+.hero-icon{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:#fff;}
+.hero-card h1{font-family:var(--font-display);font-size:24px;font-weight:700;color:#fff;margin-bottom:8px;}
+.hero-card p{font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.78);max-width:30ch;}
+
+.field{display:flex;flex-direction:column;gap:8px;}
+.field label{font-size:12.5px;font-weight:700;color:var(--text-dim);}
+.field .hint{font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:-4px;}
+.input-shell{background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:13px 14px;display:flex;align-items:center;gap:10px;transition:border-color .15s;}
+.input-shell:focus-within{border-color:var(--accent);}
+.input-shell input,.input-shell textarea{font-size:14.5px;font-weight:500;}
+.input-shell textarea{resize:none;min-height:84px;line-height:1.5;}
+.input-shell input::placeholder,.input-shell textarea::placeholder{color:var(--text-faint);font-weight:500;}
+.phone-input{display:flex;align-items:stretch;gap:0;}
+.phone-prefix{padding:13px 12px;background:var(--card-2);border:1px solid var(--border-soft);border-right:none;border-radius:var(--radius-md) 0 0 var(--radius-md);font-size:14px;font-weight:700;color:var(--text-dim);display:flex;align-items:center;}
+.phone-input .input-shell{border-radius:0 var(--radius-md) var(--radius-md) 0;flex:1;}
+
+.btn{border-radius:var(--radius-md);padding:15px 18px;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s, opacity .15s, filter .15s;width:100%;}
+.btn:active{transform:scale(.98);}
+.btn:disabled{opacity:.4;pointer-events:none;}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-ghost{background:var(--card-2);color:var(--text);border:1px solid var(--border-soft);}
+.btn-outline{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+.btn-text{width:auto;color:var(--accent);font-weight:700;font-size:13.5px;padding:6px 0;}
+.btn-sm{padding:9px 14px;font-size:12.5px;width:auto;border-radius:10px;}
+.btn-danger-outline{background:transparent;color:var(--danger);border:1.5px solid rgba(255,138,128,.4);}
+.btn-warn-outline{background:transparent;color:var(--warning);border:1.5px solid rgba(240,185,94,.4);}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:9px 14px;border-radius:100px;background:var(--chip-bg);border:1px solid var(--border-soft);font-size:12.5px;font-weight:700;color:var(--text-dim);transition:all .15s;white-space:nowrap;}
+.chip.selected{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.chip:active{transform:scale(.95);}
+.chip.priority-low.selected{background:#7fb8e0;color:#04202f;border-color:#7fb8e0;}
+.chip.priority-medium.selected{background:var(--warning);color:#332608;border-color:var(--warning);}
+.chip.priority-high.selected{background:var(--danger);color:#3a1b1e;border-color:var(--danger);}
+
+.routed-line{font-size:12px;color:var(--text-faint);font-weight:600;margin-top:-2px;}
+.routed-line b{color:var(--accent);font-weight:700;}
+
+.badge{padding:4px 10px;border-radius:100px;font-size:10.5px;font-weight:800;letter-spacing:.02em;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.badge-open{background:rgba(63,213,135,.14);color:var(--accent);}
+.badge-progress{background:rgba(240,185,94,.14);color:var(--warning);}
+.badge-submitted{background:rgba(127,184,224,.16);color:var(--info);}
+.badge-resolved{background:rgba(255,255,255,.08);color:var(--text-dim);}
+.badge-high{background:rgba(255,138,128,.16);color:var(--danger);}
+.badge-medium{background:rgba(240,185,94,.16);color:var(--warning);}
+.badge-low{background:rgba(127,184,224,.16);color:var(--info);}
+.badge-stale{background:var(--warning-bg);color:var(--warning);}
+.badge-verified{background:rgba(127,184,224,.16);color:var(--info);}
+.badge-unverified{background:var(--warning-bg);color:var(--warning);}
+
+.card{background:var(--card);border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:16px;}
+.quick-card{background:var(--card-2);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border-soft);}
+.quick-card:active{transform:scale(.98);}
+.stat-row{display:flex;gap:12px;}
+.stat-box{flex:1;background:var(--card);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:14px 16px;}
+.stat-box .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--text);}
+.stat-box .lbl{font-size:11px;color:var(--text-dim);font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+
+.search-shell{background:var(--card);border:1px solid var(--border-soft);border-radius:100px;padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.search-shell input{font-size:13.5px;font-weight:600;}
+.search-shell input::placeholder{color:var(--text-faint);}
+
+.seg-tabs{display:flex;background:var(--card-2);border-radius:100px;padding:4px;gap:4px;}
+.seg-tabs button{flex:1;padding:8px 10px;border-radius:100px;font-size:12.5px;font-weight:700;color:var(--text-dim);transition:all .15s;}
+.seg-tabs button.active{background:var(--accent);color:var(--accent-ink);}
+
+.complaint-card{background:var(--card);border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:10px;}
+.complaint-card:active{transform:scale(.985);}
+.complaint-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.complaint-card .ctitle{font-size:14.5px;font-weight:700;color:var(--text);line-height:1.3;}
+.complaint-card .ccat{font-size:12px;color:var(--text-dim);font-weight:600;margin-top:2px;}
+.complaint-card .cfoot{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--text-faint);font-weight:600;padding-top:8px;border-top:1px solid var(--border-soft);}
+.cfoot .note{display:flex;align-items:center;gap:5px;}
+.cfoot .note.warn{color:var(--warning);}
+
+.detail-hero{padding:18px 20px 20px;display:flex;flex-direction:column;gap:8px;}
+.detail-hero .dept-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);font-weight:600;margin-top:2px;}
+.detail-hero .head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+
+.phase-card{background:linear-gradient(150deg, var(--card-3), var(--card));border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:18px;display:flex;flex-direction:column;gap:4px;}
+.phase-card .lbl{font-size:11.5px;font-weight:700;color:var(--text-dim);}
+.phase-card .big{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--text);}
+.phase-card .note{font-size:12.5px;color:var(--text-faint);font-weight:600;}
+
+.divider{height:1px;background:var(--border-soft);margin:4px 0;}
+
+.map-box{border-radius:var(--radius-md);background:radial-gradient(circle at 30% 30%, rgba(63,213,135,.12), transparent 60%),repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 26px),repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 26px),var(--card-2);border:1px solid var(--border-soft);height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative;overflow:hidden;}
+.map-box .pin{color:var(--accent);}
+.map-box .cap{font-size:11px;color:var(--text-faint);font-weight:700;}
+.map-box.captured .cap{color:var(--accent);}
+
+.img-thumbs{display:flex;gap:10px;flex-wrap:wrap;}
+.img-thumb{width:74px;height:74px;border-radius:var(--radius-sm);background:var(--card-2);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;color:var(--text-faint);position:relative;overflow:hidden;flex:none;}
+.img-thumb img{width:100%;height:100%;object-fit:cover;}
+.img-thumb .rm{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;color:#fff;}
+.add-photo{width:74px;height:74px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-faint);font-size:10px;font-weight:700;flex:none;}
+.add-photo:active{transform:scale(.94);}
+
+.pastref-item{display:flex;align-items:center;justify-content:space-between;background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text-dim);}
+.pastref-item button{color:var(--text-faint);}
+.addref-row{display:flex;gap:8px;}
+.addref-row .input-shell{flex:1;padding:11px 12px;}
+.addbtn{width:44px;height:44px;border-radius:var(--radius-md);background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;}
+.addbtn:active{transform:scale(.9);}
+
+.timeline{display:flex;flex-direction:column;}
+.tl-item{display:flex;gap:12px;position:relative;padding-bottom:22px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:1.5px;background:var(--border);}
+.tl-item:last-child::before{display:none;}
+.tl-dot{width:32px;height:32px;border-radius:50%;background:var(--card-2);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none;}
+.tl-body{flex:1;display:flex;flex-direction:column;gap:3px;}
+.tl-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.tl-label{font-size:13.5px;font-weight:700;color:var(--text);}
+.tl-time{font-size:10.5px;color:var(--text-faint);font-weight:700;white-space:nowrap;}
+.tl-who{font-size:11.5px;color:var(--text-dim);font-weight:600;}
+.tl-path{font-size:11px;color:var(--text-faint);font-weight:600;}
+.tl-note{margin-top:4px;background:var(--card-2);border-radius:var(--radius-sm);padding:9px 11px;font-size:12px;color:var(--text-dim);font-weight:500;line-height:1.5;}
+
+.action-card{display:flex;flex-direction:column;gap:14px;}
+.action-row{display:flex;gap:10px;}
+.upvote-btn{display:flex;align-items:center;gap:8px;justify-content:center;background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:13px;font-weight:700;font-size:13px;color:var(--text-dim);flex:1;}
+.upvote-btn.voted{background:rgba(63,213,135,.14);color:var(--accent);border-color:rgba(63,213,135,.3);}
+.upvote-btn.verify.voted{background:rgba(127,184,224,.14);color:var(--info);border-color:rgba(127,184,224,.3);}
+.upvote-btn:active{transform:scale(.97);}
+
+.chat-thread{display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto;padding-right:2px;}
+.msg{max-width:80%;display:flex;flex-direction:column;gap:4px;}
+.msg.mine{align-self:flex-end;align-items:flex-end;}
+.msg .bubble{background:var(--card-2);border:1px solid var(--border-soft);border-radius:16px 16px 16px 4px;padding:10px 13px;font-size:13px;line-height:1.45;color:var(--text);}
+.msg.mine .bubble{background:var(--accent);color:var(--accent-ink);border-radius:16px 16px 4px 16px;border-color:transparent;font-weight:600;}
+.msg .meta{font-size:10px;color:var(--text-faint);font-weight:700;padding:0 4px;}
+.chat-input-row{display:flex;gap:8px;align-items:center;margin-top:12px;}
+.chat-input-row .input-shell{flex:1;padding:11px 14px;}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;}
+.send-btn:active{transform:scale(.9);}
+.send-btn:disabled{opacity:.35;}
+.empty-chat{font-size:12.5px;color:var(--text-faint);font-weight:600;text-align:center;padding:18px 6px;line-height:1.5;}
+
+.filter-panel{background:var(--card);border:1px solid var(--border-soft);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:16px;}
+.filter-head{display:flex;justify-content:space-between;align-items:center;}
+.filter-group{display:flex;flex-direction:column;gap:8px;}
+.filter-group .fg-label{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
+
+.fab{position:absolute;right:20px;bottom:22px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px -6px rgba(63,213,135,.55);z-index:6;}
+.fab:active{transform:scale(.92);}
+
+#toast{position:absolute;left:20px;right:20px;bottom:26px;background:var(--card-3);border:1px solid rgba(63,213,135,.35);border-radius:var(--radius-md);padding:13px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--text);transform:translateY(120%);opacity:0;transition:transform .32s cubic-bezier(.2,.8,.3,1), opacity .32s;z-index:20;box-shadow:0 12px 30px -8px rgba(0,0,0,.5);}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast svg{color:var(--accent);flex:none;}
+
+#roleswitch{position:absolute;top:14px;right:14px;z-index:15;display:flex;align-items:center;gap:6px;background:rgba(8,23,18,.88);backdrop-filter:blur(6px);border:1px solid var(--border-soft);border-radius:100px;padding:5px;font-size:10.5px;font-weight:800;}
+#roleswitch button{padding:6px 10px;border-radius:100px;color:var(--text-faint);}
+#roleswitch button.active{background:var(--accent);color:var(--accent-ink);}
+
+.login-footer{padding:0 20px;display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:auto;}
+.login-footer .sep{display:flex;align-items:center;gap:10px;width:100%;color:var(--text-faint);font-size:11px;font-weight:700;}
+.login-footer .sep::before,.login-footer .sep::after{content:'';flex:1;height:1px;background:var(--border-soft);}
+
+.otp-boxes{display:flex;gap:10px;justify-content:space-between;}
+.otp-boxes input{width:52px;height:58px;text-align:center;font-size:22px;font-weight:800;background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-md);font-family:var(--font-display);}
+.otp-boxes input:focus{border-color:var(--accent);}
+
+.anon-note{display:flex;gap:10px;align-items:flex-start;background:rgba(63,213,135,.08);border:1px solid rgba(63,213,135,.22);border-radius:var(--radius-md);padding:12px 14px;}
+.anon-note svg{color:var(--accent);flex:none;margin-top:1px;}
+.anon-note p{font-size:12px;color:var(--text-dim);font-weight:600;line-height:1.5;}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:50px 24px;}
+.empty-state .ic{width:52px;height:52px;border-radius:16px;background:var(--card-2);display:flex;align-items:center;justify-content:center;color:var(--text-faint);}
+.empty-state h3{font-family:var(--font-display);font-size:15px;color:var(--text);}
+.empty-state p{font-size:12.5px;color:var(--text-faint);font-weight:600;max-width:26ch;}
+
+a.linklike{color:var(--accent);font-weight:700;cursor:pointer;}
+
+/* new components */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:13px 14px;}
+.toggle-row .txt{display:flex;flex-direction:column;gap:2px;}
+.toggle-row .txt b{font-size:13px;color:var(--text);}
+.toggle-row .txt span{font-size:11px;color:var(--text-faint);font-weight:600;}
+.toggle{width:42px;height:24px;border-radius:100px;background:var(--border);position:relative;flex:none;transition:background .15s;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s;}
+.toggle.on::after{transform:translateX(18px);}
+
+.star-row{display:flex;gap:6px;}
+.star-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--border);}
+.star-btn.filled{color:var(--warning);}
+.star-btn svg{width:24px;height:24px;}
+
+.proof-card{background:rgba(127,184,224,.08);border:1px solid rgba(127,184,224,.28);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:12px;}
+.review-card{background:rgba(240,185,94,.08);border:1px solid rgba(240,185,94,.3);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:10px;}
+.similar-card{background:rgba(240,185,94,.07);border:1px solid rgba(240,185,94,.25);border-radius:var(--radius-lg);padding:14px;display:flex;flex-direction:column;gap:10px;}
+.similar-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:10px 12px;}
+.similar-item .sname{font-size:12.5px;font-weight:700;color:var(--text);}
+.similar-item .ssub{font-size:11px;color:var(--text-faint);font-weight:600;}
+.countdown{font-size:11.5px;color:var(--info);font-weight:700;}
+.verified-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(127,184,224,.14);color:var(--info);border-radius:100px;padding:3px 9px;font-size:10px;font-weight:800;}
+.suggestion-note{background:var(--card-2);border-radius:var(--radius-sm);padding:11px 13px;font-size:12.5px;color:var(--text-dim);font-weight:500;line-height:1.5;}
+.inline-panel{background:var(--card-2);border:1px solid var(--border-soft);border-radius:var(--radius-md);padding:14px;display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+
+@media (max-width: 460px){
+  body{align-items:stretch;}
+  #stage{padding:0;}
+  #phone{width:100%;height:100vh;max-height:100vh;border-radius:0;border:none;box-shadow:none;}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="phone">
+    <div id="roleswitch">
+      <button data-role="citizen" id="rs-citizen">Citizen</button>
+      <button data-role="officer" id="rs-officer">Officer</button>
+    </div>
+    <div id="statusbar">
+      <span>9:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h2v3H2zm4-4h2v7H6zm4-4h2v11h-2zm4-3h2v14h-2zm4-4h2v18h-2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9a15.9 15.9 0 0122 0l-1.4 1.4a13.9 13.9 0 00-19.2 0L1 9zm4 4a9.9 9.9 0 0114 0l-1.4 1.4a7.9 7.9 0 00-11.2 0L5 13zm4 4a3.9 3.9 0 016 0l-3 3-3-3z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="7" width="18" height="10" rx="2.5"/><path d="M22 10v4" stroke-linecap="round"/><rect x="4" y="9" width="12" height="6" rx="1" fill="currentColor" stroke="none"/></svg>
+      </div>
+    </div>
+    <div id="app"></div>
+    <div id="toast"></div>
+  </div>
+</div>
+
+<script>
+/* ============ ICONS ============ */
+const ICONS = {
+  phone:`<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+  chevronLeft:`<polyline points="15 18 9 12 15 6"/>`,
+  search:`<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>`,
+  plus:`<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
+  x:`<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`,
+  camera:`<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>`,
+  mapPin:`<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>`,
+  send:`<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`,
+  grid:`<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>`,
+  filter:`<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>`,
+  thumbsUp:`<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>`,
+  clock:`<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+  alertTriangle:`<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
+  checkCircle:`<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>`,
+  check:`<polyline points="20 6 9 17 4 12"/>`,
+  user:`<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+  arrowRight:`<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
+  users:`<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
+  image:`<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>`,
+  messageCircle:`<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>`,
+  edit:`<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>`,
+  fileText:`<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>`,
+  shield:`<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+  eyeOff:`<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`,
+  star:`<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+  refresh:`<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>`,
+  fastForward:`<polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/>`,
+};
+function icon(name, cls){ return `<svg class="icon ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`; }
+
+/* ============ DATA ============ */
+const CATEGORIES = [
+  {id:'roads', label:'Roads & Potholes', dept:'PWD (Roads)'},
+  {id:'water', label:'Water Supply', dept:'Water Board'},
+  {id:'garbage', label:'Garbage & Waste', dept:'Sanitation Dept'},
+  {id:'streetlights', label:'Streetlights', dept:'Electricity Board'},
+  {id:'drainage', label:'Drainage & Sewage', dept:'PWD (Drainage)'},
+  {id:'noise', label:'Noise Pollution', dept:'Pollution Control Board'},
+  {id:'parks', label:'Parks & Trees', dept:'Parks Dept'},
+  {id:'electricity', label:'Electricity', dept:'Electricity Board'},
+  {id:'encroachment', label:'Encroachment / Illegal Building', dept:'Municipal Corporation'},
+  {id:'health', label:'Public Health', dept:'Health Dept'},
+  {id:'transport', label:'Public Transport', dept:'Transport Dept'},
+  {id:'other', label:'Other', dept:'General Complaints Cell'},
+];
+function catLabel(id){ const c=CATEGORIES.find(c=>c.id===id); return c?c.label:id; }
+function catDept(id){ const c=CATEGORIES.find(c=>c.id===id); return c?c.dept:'Complaints Cell'; }
+
+/* ============ STATE ============ */
+const S = {
+  screen:'login', role:'citizen', authed:false, phone:'', citizenVerified:false,
+  token: localStorage.getItem('civic_token') || null,
+  officerKey: localStorage.getItem('civic_officer_key') || '',
+  officerSignedIn: localStorage.getItem('civic_officer_signed_in') === 'true',
+  officerKeyInput:'', officerLoginError:'',
+  complaints: [],
+  activeId:null, homeFilter:'all', homeSearch:'',
+  dash:{status:'all', area:'', priority:[], category:[], needsReview:false},
+  draft:null, editId:null, history:[],
+  ui:{confirmOpen:null, confirmRating:0, confirmNote:'', confirmImages:[], reopenOpen:null, reopenReason:''},
+};
+if(S.token) S.phone = localStorage.getItem('civic_phone') || '';
+if(!S.officerKey) S.officerSignedIn = false; // never trust a signed-in flag without the key that earned it
+
+/* ============ API ============ */
+async function api(path, opts){
+  opts = opts || {};
+  const headers = {'Content-Type':'application/json'};
+  if(opts.auth && S.token) headers['Authorization'] = 'Bearer ' + S.token;
+  if(opts.officer) headers['x-officer-key'] = S.officerKey || '';
+  let res;
+  try{
+    res = await fetch(path, {
+      method: opts.method || 'GET',
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  } catch(networkErr){
+    throw new Error('Could not reach the server. Check your connection and try again.');
+  }
+  let data = null;
+  try{ data = await res.json(); } catch(e){ /* no body */ }
+  if(!res.ok){
+    throw new Error((data && data.error) || `Request failed (${res.status})`);
+  }
+  return data;
+}
+function getComplaint(id){ return S.complaints.find(c=>c.id===id); }
+function upsertComplaint(full){
+  const i = S.complaints.findIndex(c=>c.id===full.id);
+  if(i>-1) S.complaints[i] = full; else S.complaints.unshift(full);
+  return full;
+}
+async function loadMine(){
+  S.complaints = await api('/api/complaints?mine=true', {auth:true});
+}
+async function loadAll(){
+  S.complaints = await api('/api/complaints', {});
+}
+async function openDetail(id){
+  try{
+    const full = await api(`/api/complaints/${id}`, {auth:true});
+    upsertComplaint(full);
+    go('detail', {id: full.id});
+  } catch(err){ toast(err.message, false); }
+}
+async function openOfficerDetail(id){
+  try{
+    const full = await api(`/api/complaints/${id}`, {});
+    upsertComplaint(full);
+    S.ui.proofImages=[]; S.ui.proofNote='';
+    go('officerDetail', {id: full.id});
+  } catch(err){ toast(err.message, false); }
+}
+function fileToDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = ()=>reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function enterOfficerMode(opts){
+  opts = opts || {};
+  S.role='officer';
+  if(!S.officerSignedIn){ go('officerLogin', {push: opts.push}); return; }
+  try{ await loadAll(); go('dashboard', {push: opts.push}); }
+  catch(err){ toast(err.message, false); }
+}
+function officerSignOut(){
+  S.officerSignedIn=false; S.officerKey='';
+  localStorage.removeItem('civic_officer_key');
+  localStorage.removeItem('civic_officer_signed_in');
+  S.role='citizen';
+  go(S.authed?'home':'login', {push:false}); S.history=[];
+}
+
+function go(screen, opts){
+  opts = opts || {};
+  if(opts.push !== false) S.history.push(S.screen);
+  S.screen = screen;
+  if(opts.id !== undefined) S.activeId = opts.id;
+  render();
+  document.getElementById('app').scrollTop = 0;
+}
+function back(){ S.screen = S.history.pop() || 'home'; render(); }
+function toast(msg, ok){
+  const t = document.getElementById('toast');
+  t.innerHTML = icon(ok===false?'alertTriangle':'checkCircle') + `<span>${msg}</span>`;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function renderKeepScroll(){ const app=document.getElementById('app'); const y=app.scrollTop; render(); app.scrollTop=y; }
+
+/* ============ HELPERS ============ */
+function statusBadge(status){
+  if(status==='open') return `<span class="badge badge-open">${icon('checkCircle')} Open</span>`;
+  if(status==='in_progress') return `<span class="badge badge-progress">${icon('clock')} In progress</span>`;
+  if(status==='resolution_submitted') return `<span class="badge badge-submitted">${icon('image')} Resolution submitted</span>`;
+  return `<span class="badge badge-resolved">${icon('check')} Resolved</span>`;
+}
+function priorityBadge(p){ const cls=p==='High'?'badge-high':p==='Low'?'badge-low':'badge-medium'; return `<span class="badge ${cls}">${p}</span>`; }
+function getComplaint(id){ return S.complaints.find(c=>c.id===id); }
+function starRow(value, editable, dataAttr){
+  return `<div class="star-row" ${editable?`id="${dataAttr}"`:''}>${[1,2,3,4,5].map(n=>`<${editable?'button':'span'} class="star-btn ${n<=value?'filled':''}" ${editable?`data-star="${n}"`:''}>${icon('star')}</${editable?'button':'span'}>`).join('')}</div>`;
+}
+
+/* ============ RENDER ROOT ============ */
+function render(){
+  document.getElementById('rs-citizen').classList.toggle('active', S.role==='citizen');
+  document.getElementById('rs-officer').classList.toggle('active', S.role==='officer');
+  const app = document.getElementById('app');
+  let html='';
+  switch(S.screen){
+    case 'login': html=screenLogin(); break;
+    case 'otp': html=screenOtp(); break;
+    case 'officerLogin': html=screenOfficerLogin(); break;
+    case 'home': html=screenHome(); break;
+    case 'newComplaint': html=screenComplaintForm(false); break;
+    case 'anonComplaint': html=screenComplaintForm(true); break;
+    case 'detail': html=screenDetail(); break;
+    case 'dashboard': html=screenDashboard(); break;
+    case 'officerDetail': html=screenOfficerDetail(); break;
+    default: html=screenHome();
+  }
+  app.innerHTML = `<div class="screen">${html}</div>`;
+  bindScreenEvents();
+}
+
+/* ============ LOGIN / OTP ============ */
+function screenLogin(){
+  return `
+  <div class="hero-card">
+    <div class="hero-icon">${icon('phone','icon-lg')}</div>
+    <h1>Civic Tracker</h1>
+    <p>Sign in with your mobile number. First time? We'll verify you with an OTP — after that, just your number is enough.</p>
+  </div>
+  <div class="pad stack">
+    <div class="field">
+      <label>Mobile number <span class="faint" style="font-weight:600;">(India)</span></label>
+      <div class="phone-input">
+        <div class="phone-prefix">+91</div>
+        <div class="input-shell"><input id="phoneInput" type="tel" inputmode="numeric" maxlength="10" placeholder="98765 43210" value="${S.phone}"/></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="getOtpBtn">Get OTP</button>
+    <p class="faint" style="font-size:11.5px;font-weight:600;text-align:center;">New user? We'll verify you with a one-time password, then you're in.</p>
+  </div>
+  <div class="login-footer">
+    <div class="sep">or</div>
+    <button class="btn btn-outline" id="anonEntryBtn">${icon('shield')} Report an issue without signing in</button>
+  </div>`;
+}
+function screenOtp(){
+  return `
+  <div class="topbar"><button class="iconbtn" data-action="back">${icon('chevronLeft')}</button><div class="topbar-title">Verify number</div><div style="width:36px;"></div></div>
+  <div class="pad stack">
+    <div>
+      <h1 class="title" style="font-size:21px;">Enter the OTP</h1>
+      <p class="muted" style="font-size:13px;margin-top:6px;">We've sent a 4-digit code to <b style="color:var(--text)">+91 ${S.phone||'—'}</b></p>
+    </div>
+    <div class="otp-boxes">${[0,1,2,3].map(i=>`<input type="tel" maxlength="1" class="otpDigit" data-i="${i}" value="${'1234'[i]}"/>`).join('')}</div>
+    <p class="faint" style="font-size:11.5px;font-weight:600;">Demo code is pre-filled — just tap continue.</p>
+    <button class="btn btn-primary" id="verifyBtn">Verify &amp; continue</button>
+    <button class="btn-text" style="align-self:center;" id="resendBtn">Resend code</button>
+  </div>`;
+}
+
+function screenOfficerLogin(){
+  return `
+  <div class="topbar"><button class="iconbtn" data-action="back">${icon('chevronLeft')}</button><div class="topbar-title">Officer sign-in</div><div style="width:36px;"></div></div>
+  <div class="pad stack">
+    <div class="hero-icon">${icon('shield','icon-lg')}</div>
+    <div>
+      <h1 class="title" style="font-size:21px;">Officer access</h1>
+      <p class="muted" style="font-size:13px;margin-top:6px;">Enter the officer key issued to your department to open the dashboard. This is separate from citizen sign-in.</p>
+    </div>
+    <div class="field">
+      <label>Officer key</label>
+      <div class="input-shell"><input type="password" id="officerKeyInput" placeholder="Enter officer key" autocomplete="off" value="${S.officerKeyInput||''}"/></div>
+    </div>
+    ${S.officerLoginError ? `<p style="color:var(--danger,#e5484d);font-size:12.5px;font-weight:600;">${S.officerLoginError}</p>` : ''}
+    <button class="btn btn-primary" id="officerLoginBtn">Sign in</button>
+    <p class="faint" style="font-size:11.5px;">Demo key: <code>demo-officer-key</code> (unless your deployment set a custom <code>OFFICER_KEY</code>).</p>
+  </div>`;
+}
+
+/* ============ HOME ============ */
+function screenHome(){
+  const mine = S.complaints;
+  const active = mine.filter(c=>c.status!=='resolved');
+  const staleCount = mine.filter(c=>c.stale).length;
+  const pendingReview = mine.filter(c=>c.status==='resolution_submitted').length;
+  let list = mine;
+  if(S.homeFilter==='open') list = mine.filter(c=>c.status==='open'||c.status==='in_progress'||c.status==='resolution_submitted');
+  if(S.homeFilter==='resolved') list = mine.filter(c=>c.status==='resolved');
+  if(S.homeSearch.trim()){
+    const q=S.homeSearch.toLowerCase();
+    list = list.filter(c=>c.title.toLowerCase().includes(q)||catLabel(c.category).toLowerCase().includes(q)||c.locationText.toLowerCase().includes(q));
+  }
+  return `
+  <div class="pad stack" style="padding-bottom:8px;">
+    <div class="row between">
+      <div>
+        <div class="eyebrow">Civic Requests ${S.citizenVerified?`<span class="verified-chip">${icon('shield')} Verified</span>`:''}</div>
+        <h1 class="title">My Complaints</h1>
+      </div>
+      <button class="iconbtn" style="background:var(--accent);color:var(--accent-ink);" data-action="goNew">${icon('plus')}</button>
+    </div>
+
+    <button class="quick-card" data-action="goDashboard">
+      <span class="row gap10">${icon('grid')} <b style="font-size:13px;">Open dashboard</b></span>
+      <span class="muted row gap6" style="font-size:12px;font-weight:700;">Filter &amp; view ${icon('arrowRight')}</span>
+    </button>
+
+    ${!S.citizenVerified ? `
+    <button class="quick-card" data-action="verifyIdentity">
+      <span class="row gap10">${icon('shield')} <b style="font-size:13px;">Verify your identity</b></span>
+      <span class="muted" style="font-size:11.5px;font-weight:700;">Phone/Aadhaar · adds trust</span>
+    </button>` : ''}
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="lbl">${icon('fileText')} Active cases</div><div class="num">${active.length}</div></div>
+      ${staleCount>0 ? `<div class="stat-box"><div class="lbl" style="color:var(--warning)">${icon('alertTriangle')} Stale · 7d+</div><div class="num" style="color:var(--warning)">${staleCount}</div></div>` : ''}
+    </div>
+    ${pendingReview>0 ? `<div class="quick-card" style="background:rgba(127,184,224,.1);border-color:rgba(127,184,224,.3);">
+      <span class="row gap10">${icon('image')} <b style="font-size:12.5px;color:var(--info);">${pendingReview} awaiting your confirmation</b></span>
+    </div>` : ''}
+
+    <div class="search-shell">${icon('search')}<input id="homeSearch" placeholder="Search by title, category or area" value="${S.homeSearch}"/></div>
+
+    <div class="seg-tabs">
+      <button data-filter="all" class="${S.homeFilter==='all'?'active':''}">All</button>
+      <button data-filter="open" class="${S.homeFilter==='open'?'active':''}">Open</button>
+      <button data-filter="resolved" class="${S.homeFilter==='resolved'?'active':''}">Resolved</button>
+    </div>
+  </div>
+  <div class="pad" style="padding-top:0;">
+    <p class="muted" style="font-size:12px;font-weight:700;margin-bottom:10px;">${list.length} request${list.length===1?'':'s'}</p>
+    <div class="stack">${list.length ? list.map(complaintCard).join('') : emptyState('fileText','No complaints found','Try a different search or filter.')}</div>
+  </div>`;
+}
+function complaintCard(c){
+  let footNote='';
+  if(c.status==='resolved'){
+    footNote = c.resolvedVerified===false
+      ? `<span class="note warn">${icon('alertTriangle')} Auto-resolved, unverified</span>`
+      : `<span class="note">${icon('check')} Resolved ${c.resolvedAgo||''}</span>`;
+  } else if(c.status==='resolution_submitted'){
+    footNote = `<span class="note" style="color:var(--info);">${icon('image')} Needs your confirmation</span>`;
+  } else if(c.stale){
+    footNote = `<span class="note warn">${icon('alertTriangle')} Not opened in over 7 days</span>`;
+  } else if(c.phase){
+    footNote = `<span class="note">${icon('clock')} In ${c.status==='in_progress'?'processing':'review'} for ${c.phase.days} day${c.phase.days===1?'':'s'}</span>`;
+  }
+  return `
+  <div class="complaint-card" data-action="openDetail" data-id="${c.id}">
+    <div class="top-row">
+      <div><div class="ctitle">${c.title}</div><div class="ccat">${catLabel(c.category)}</div></div>
+      ${statusBadge(c.status)}
+    </div>
+    <div class="cfoot">${footNote}<span>Opened ${c.openedAgo}</span></div>
+  </div>`;
+}
+function emptyState(ic,title,sub){
+  return `<div class="empty-state"><div class="ic">${icon(ic,'icon-lg')}</div><h3>${title}</h3><p>${sub}</p></div>`;
+}
+
+/* ============ COMPLAINT FORM (new / anonymous / edit) ============ */
+function newDraft(anonymous, base){
+  return base ? JSON.parse(JSON.stringify(base)) : {
+    title:'', category:null, description:'', locationCaptured:false, lat:null, lng:null,
+    images:[], pastReports:[], phone:'', anonymous:!!anonymous, private:false, priority:'Medium',
+  };
+}
+function similarReports(draft){
+  return draft.similar || [];
+}
+function screenComplaintForm(anonymous){
+  const editing = !!S.editId;
+  if(!S.draft){
+    if(editing){
+      const c = getComplaint(S.editId);
+      S.draft = {title:c.title, category:c.category, description:c.description, locationCaptured:true, lat:c.lat, lng:c.lng, images:[], pastReports:c.pastReports.slice(), phone:c.phone, anonymous:false, private:c.private, priority:c.priority};
+    } else {
+      S.draft = newDraft(anonymous);
+    }
+  }
+  const d = S.draft;
+  const similar = !editing ? similarReports(d) : [];
+  return `
+  <div class="topbar"><span style="width:36px;"></span><div class="topbar-title">${editing?'Edit complaint':''}</div><button class="iconbtn" data-action="closeForm">${icon('x')}</button></div>
+  <div class="pad stack">
+    <div>
+      <div class="eyebrow">${editing?'Editing':anonymous?'':'New request'}</div>
+      <h1 class="title" style="font-size:22px;">${editing?'Update the details':anonymous?'':'Submit a complaint'}</h1>
+      ${editing ? `<p class="faint" style="font-size:11.5px;font-weight:600;margin-top:4px;">Changes are recorded in the complaint's history.</p>` : ''}
+    </div>
+
+    ${anonymous && !editing ? `<div class="anon-note">${icon('eyeOff','icon-lg')}<p><b style="color:var(--text)">Anonymous request.</b> Submit a complaint without creating an account. Your identity stays private.</p></div>` : ''}
+
+    <div class="field"><label>Title</label><div class="input-shell"><input id="f-title" placeholder="e.g. Pothole on Main Street" value="${d.title}"/></div></div>
+
+    <div class="field">
+      <label>Category</label>
+      <div class="chip-row">${CATEGORIES.map(c=>`<button class="chip ${d.category===c.id?'selected':''}" data-cat="${c.id}">${c.label}</button>`).join('')}</div>
+      ${d.category ? `<div class="routed-line">Routed to: <b>${catDept(d.category)}</b></div>` : ''}
+    </div>
+
+    ${similar.length ? `
+    <div class="similar-card">
+      <div class="row gap8" style="font-size:12.5px;font-weight:800;color:var(--warning);">${icon('alertTriangle')} ${similar.length} similar report${similar.length===1?'':'s'} already open nearby</div>
+      <p class="faint" style="font-size:11.5px;font-weight:600;margin-top:-6px;">Upvoting an existing report gets it more attention faster than filing a duplicate.</p>
+      <div class="stack" style="gap:8px;">
+        ${similar.map(c=>`<div class="similar-item"><div><div class="sname">${c.title}</div><div class="ssub">${c.locationText} · ${statusBadgeText(c.status)}</div></div><button class="btn-sm btn-ghost" data-upvote-existing="${c.id}">${icon('thumbsUp')} Upvote</button></div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="field"><label>Description</label><div class="input-shell"><textarea id="f-desc" placeholder="Describe the issue in detail...">${d.description}</textarea></div></div>
+
+    <div class="field">
+      <label>How urgent is this?</label>
+      <div class="chip-row">${['Low','Medium','High'].map(p=>`<button class="chip priority-${p.toLowerCase()} ${d.priority===p?'selected':''}" data-prio="${p}">${p}</button>`).join('')}</div>
+      ${d.priority==='High' ? `<p class="hint" style="color:var(--warning);">High priority claims are reviewed by an officer within 3 days — if it turns out low-urgency, it may be adjusted down.</p>` : `<p class="hint">Attaching a past report or FIR below helps support a high-priority claim.</p>`}
+    </div>
+
+    <div class="field">
+      <label>Location</label>
+      <button class="map-box ${d.locationCaptured?'captured':''}" id="f-location">
+        <span class="pin">${icon(d.locationCaptured?'checkCircle':'mapPin','icon-lg')}</span>
+        <span class="cap">${d.locationCaptured ? `Captured · ${d.lat}, ${d.lng}` : 'Pin location on map'}</span>
+        ${!d.locationCaptured ? `<span class="cap">Uses your device GPS to capture coordinates</span>` : ''}
+      </button>
+    </div>
+
+    <div class="field">
+      <label>Problem images</label>
+      <div class="img-thumbs">
+        ${d.images.map((im,i)=>`<div class="img-thumb"><img src="${im}"/><button class="rm" data-rmimg="${i}">${icon('x')}</button></div>`).join('')}
+        <button class="add-photo" id="f-addphoto">${icon('camera')}<span>Add photo</span></button>
+        <input type="file" id="f-fileinput" accept="image/*" multiple style="display:none;"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Past reports / references</label>
+      <p class="hint">Add any prior FIR numbers, complaint IDs, or police report references already filed — this also helps support a high-priority claim.</p>
+      ${d.pastReports.map((r,i)=>`<div class="pastref-item"><span>${r}</span><button data-rmref="${i}">${icon('x')}</button></div>`).join('')}
+      <div class="addref-row"><div class="input-shell"><input id="f-refinput" placeholder="e.g. FIR No. 123/2025"/></div><button class="addbtn" id="f-addref">${icon('plus')}</button></div>
+    </div>
+
+    ${anonymous && !editing ? `<div class="field"><label>Phone <span class="faint" style="font-weight:600;">(optional, for status updates)</span></label><div class="input-shell"><input id="f-phone" type="tel" placeholder="98765 43210" value="${d.phone}"/></div></div>` : ''}
+
+    ${!anonymous ? `
+    <div class="toggle-row" id="f-private-row">
+      <div class="txt"><b>Keep my identity private</b><span>Officers see "Resident (private)" instead of your name</span></div>
+      <div class="toggle ${d.private?'on':''}" id="f-private-toggle"></div>
+    </div>` : ''}
+
+    <button class="btn btn-primary" id="f-submit" style="margin-top:6px;">${editing?'Save changes':anonymous?'Submit anonymously':'Submit complaint'}</button>
+  </div>`;
+}
+function statusBadgeText(s){ return s==='open'?'Open':s==='in_progress'?'In progress':s==='resolution_submitted'?'Resolution submitted':'Resolved'; }
+
+/* ============ CITIZEN DETAIL ============ */
+function screenDetail(){
+  const c = getComplaint(S.activeId);
+  if(!c) return emptyState('fileText','Complaint not found','It may have been removed.');
+  const ui = S.ui;
+  const officerStartedChat = c.chat.some(m=>m.from==='officer');
+  return `
+  <div class="topbar"><button class="iconbtn" data-action="back">${icon('chevronLeft')}</button><div class="topbar-title">Detail</div>
+    ${c.status!=='resolved' ? `<button class="iconbtn" data-action="editComplaint" data-id="${c.id}">${icon('edit')}</button>` : `<span style="width:36px;"></span>`}
+  </div>
+
+  <div class="detail-hero">
+    <div class="head-row">${statusBadge(c.status)}${priorityBadge(c.priority)}</div>
+    <h1 class="title" style="font-size:21px;margin-top:8px;">${c.title}</h1>
+    <div class="dept-row">${icon('shield')} ${catLabel(c.category)} · <b style="color:var(--text-dim)">${catDept(c.category)}</b></div>
+    ${c.private ? `<span class="verified-chip" style="align-self:flex-start;margin-top:4px;">${icon('eyeOff')} Private identity</span>` : ''}
+  </div>
+
+  <div class="pad stack" style="padding-top:0;">
+
+    ${c.priorityUnderReview ? `<div class="review-card"><div class="row gap8" style="font-weight:800;font-size:12.5px;color:var(--warning);">${icon('alertTriangle')} Priority under review</div><p class="faint" style="font-size:11.5px;font-weight:600;">You marked this High ${c.priorityMarkedAgo||'recently'} — an officer reviews High-priority claims within 3 days and may adjust it if it's not urgent.</p></div>` : ''}
+
+    ${c.status==='resolution_submitted' ? renderProofCard(c) : ''}
+
+    ${c.status!=='resolved' && c.status!=='resolution_submitted' && c.phase ? `
+    <div class="phase-card"><div class="lbl">Current phase wait</div><div class="big">${c.phase.days} day${c.phase.days===1?'':'s'}</div><div class="note">${c.phase.note}</div></div>` : ''}
+
+    ${c.status==='resolved' ? renderResolvedCard(c) : ''}
+
+    <div class="card stack" style="gap:16px;">
+      <div><h2 class="section-title">${icon('fileText')} Description</h2><p class="muted" style="font-size:13px;line-height:1.55;">${c.description}</p></div>
+      <div class="divider"></div>
+      <div><h2 class="section-title">${icon('mapPin')} Location</h2><p style="font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:8px;">${c.locationText}</p><div class="map-box captured"><span class="pin">${icon('mapPin','icon-lg')}</span><span class="cap">${c.lat}, ${c.lng}</span></div></div>
+      ${c.images>0 ? `<div class="divider"></div><div><h2 class="section-title">${icon('image')} Problem images (${c.images})</h2><div class="img-thumbs">${Array.from({length:c.images}).map(()=>`<div class="img-thumb">${icon('image','icon-lg')}</div>`).join('')}</div></div>` : ''}
+      ${c.pastReports.length ? `<div class="divider"></div><div><h2 class="section-title">${icon('fileText')} Past reports / references</h2><div class="stack" style="gap:8px;">${c.pastReports.map(r=>`<div class="pastref-item"><span>${r}</span></div>`).join('')}</div></div>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="row between" style="margin-bottom:14px;"><h2 class="section-title" style="margin-bottom:0;">Full history</h2><button class="btn-link" id="verifyLedgerBtn" style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;">${icon('shield')} Verify integrity</button></div>
+      <div class="timeline">${c.history.map(h=>`<div class="tl-item"><div class="tl-dot">${icon(h.icon||'checkCircle')}</div><div class="tl-body"><div class="tl-head"><span class="tl-label">${h.label}</span><span class="tl-time">${h.date}</span></div>${h.who?`<div class="tl-who">${h.who} · ${h.role}</div>`:''}${h.path?`<div class="tl-path">${h.path}</div>`:''}${h.note?`<div class="tl-note">${h.note}</div>`:''}${h.hash?`<div class="tl-hash" style="font-family:monospace;font-size:10px;color:var(--text-dim);opacity:.7;margin-top:2px;">#${h.hash}</div>`:''}</div></div>`).join('')}</div>
+      <p class="faint" style="font-size:11px;margin-top:8px;">Each entry above is cryptographically chained to the one before it — editing or deleting any past entry breaks every hash after it.</p>
+    </div>
+
+    <div class="card action-card">
+      <div class="row between"><h2 class="section-title" style="margin-bottom:0;">Take action</h2><span class="badge badge-resolved">Citizen</span></div>
+      <div class="action-row">
+        <button class="upvote-btn ${c.voted?'voted':''}" id="upvoteBtn">${icon('thumbsUp')} Upvote · ${c.upvotes}</button>
+        <button class="upvote-btn verify ${c.verifiedByMe?'voted':''}" id="verifyBtn">${icon('checkCircle')} Verify · ${c.verifiedCount}</button>
+      </div>
+      <p class="faint" style="font-size:11px;font-weight:600;margin-top:-8px;">Upvote shows it matters to you. Verify confirms you've personally seen this problem.</p>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">${icon('messageCircle')} Chat with the officer</h2>
+      <p class="faint" style="font-size:11px;font-weight:600;margin-top:-6px;margin-bottom:12px;">Only the officer can start this chat — it saves you from an inbox full of updates you didn't ask for.</p>
+      <div class="chat-thread">${c.chat.length ? c.chat.map(m=>`<div class="msg ${m.from==='citizen'?'mine':''}"><div class="bubble">${m.text}</div><div class="meta">${m.from==='citizen'?'You':m.name} · ${m.date}</div></div>`).join('') : `<div class="empty-chat">No messages yet. The officer will reach out here if they need more details from you.</div>`}</div>
+      <div class="chat-input-row">
+        <div class="input-shell"><input id="chatInput" placeholder="${officerStartedChat?'Reply to the officer...':'Waiting for the officer to start this chat'}" ${officerStartedChat?'':'disabled'}/></div>
+        <button class="send-btn" id="chatSend" ${officerStartedChat?'':'disabled'}>${icon('send')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderProofCard(c){
+  const ui = S.ui;
+  const open = ui.confirmOpen===c.id;
+  const reopenOpen = ui.reopenOpen===c.id;
+  const daysLeft = c.resolutionProof && c.resolutionProof.submittedAt ? Math.max(0, 7 - Math.floor((Date.now()-c.resolutionProof.submittedAt)/86400000)) : 7;
+  return `
+  <div class="proof-card">
+    <div class="row gap8" style="font-weight:800;font-size:13px;color:var(--info);">${icon('image')} Officer marked this resolved</div>
+    <p class="faint" style="font-size:11.5px;font-weight:600;">Submitted ${c.resolutionProof.submittedAgo}${c.resolutionProof.images?` · ${c.resolutionProof.images} photo${c.resolutionProof.images===1?'':'s'} attached`:''}</p>
+    ${c.resolutionProof.images ? `<div class="img-thumbs">${Array.from({length:c.resolutionProof.images}).map(()=>`<div class="img-thumb">${icon('image','icon-lg')}</div>`).join('')}</div>` : ''}
+    <div class="suggestion-note">${c.resolutionProof.note}</div>
+    <p class="countdown">${icon('clock')} Auto-confirms in ${daysLeft} day${daysLeft===1?'':'s'} if you don't respond.</p>
+
+    ${!open && !reopenOpen ? `
+    <div class="action-row">
+      <button class="btn btn-primary" id="openConfirm" style="flex:1;">${icon('checkCircle')} Confirm resolved</button>
+      <button class="btn btn-warn-outline" id="openReopen" style="flex:1;">${icon('refresh')} Not resolved</button>
+    </div>
+    <button class="btn-text" id="simulateWeek" style="align-self:center;">${icon('fastForward')} Simulate 7 days passing (demo)</button>
+    ` : ''}
+
+    ${open ? `
+    <div class="inline-panel">
+      <div class="field"><label>Rate the resolution <span class="faint" style="font-weight:600;">(required)</span></label>${starRow(ui.confirmRating, true, 'confirmStars')}</div>
+      <div class="field"><label>Add a photo of the fixed issue <span class="faint" style="font-weight:600;">(optional, but encouraged)</span></label>
+        <div class="img-thumbs">${ui.confirmImages.map((im,i)=>`<div class="img-thumb"><img src="${im}"/><button class="rm" data-rmconfirmimg="${i}">${icon('x')}</button></div>`).join('')}<button class="add-photo" id="confirmAddPhoto">${icon('camera')}<span>Add photo</span></button><input type="file" id="confirmFileInput" accept="image/*" style="display:none;"/></div>
+        <p class="hint">Proof helps if the issue comes back, or if this needs to be escalated later.</p>
+      </div>
+      <div class="field"><label>Suggestion <span class="faint" style="font-weight:600;">(optional)</span></label><div class="input-shell"><textarea id="confirmSuggestion" placeholder="Anything for next time, or about this fix?">${ui.confirmNote}</textarea></div></div>
+      <div class="action-row">
+        <button class="btn btn-primary" id="submitConfirm" style="flex:1;" ${ui.confirmRating===0?'disabled':''}>Confirm resolution</button>
+        <button class="btn btn-ghost" id="cancelConfirm" style="flex:1;">Cancel</button>
+      </div>
+    </div>` : ''}
+
+    ${reopenOpen ? `
+    <div class="inline-panel">
+      <div class="field"><label>Why isn't this resolved?</label><div class="input-shell"><textarea id="reopenReason" placeholder="Tell the officer what's still wrong...">${ui.reopenReason}</textarea></div></div>
+      <div class="action-row">
+        <button class="btn btn-warn-outline" id="submitReopen" style="flex:1;">Reopen complaint</button>
+        <button class="btn btn-ghost" id="cancelReopen" style="flex:1;">Cancel</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderResolvedCard(c){
+  return `
+  <div class="phase-card">
+    <div class="lbl">${icon(c.resolvedVerified===false?'alertTriangle':'checkCircle')} ${c.resolvedVerified===false?'Resolved — unverified':'Resolved'}</div>
+    <div class="note" style="margin-top:4px;">
+      ${c.resolvedVerified===false
+        ? `No confirmation was received from you within 7 days, so this was auto-closed. If the problem is still there, you can reopen it — this record also stands as proof if the case needs to go to a senior officer.`
+        : `You confirmed this resolution ${c.resolvedAgo}.`}
+    </div>
+    ${c.resolvedVerified===true && c.rating ? `<div style="margin-top:10px;">${starRow(c.rating,false)}</div>` : ''}
+    ${c.suggestion ? `<div class="suggestion-note" style="margin-top:10px;">${c.suggestion}</div>` : ''}
+    <div class="action-row" style="margin-top:12px;">
+      ${c.reopenWindowOpen && !c.reopened ? `<button class="btn btn-warn-outline" id="reopenResolvedBtn" style="flex:1;">${icon('refresh')} Reopen complaint</button>` : `<span class="faint" style="font-size:11.5px;font-weight:600;">${c.reopened?'Already reopened once.':'Reopen window has closed for this complaint.'}</span>`}
+      ${c.resolvedVerified===false ? `<button class="btn btn-danger-outline" id="escalateBtn" style="flex:1;">${icon('alertTriangle')} Escalate to seniors</button>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ============ OFFICER DASHBOARD ============ */
+function screenDashboard(){
+  const open = S.complaints.filter(c=>c.status!=='resolved').length;
+  const resolved = S.complaints.filter(c=>c.status==='resolved').length;
+  const needsReview = S.complaints.filter(c=>c.priorityUnderReview).length;
+  let list = S.complaints.slice();
+  if(S.dash.status!=='all') list = list.filter(c=> S.dash.status==='open' ? c.status!=='resolved' : c.status==='resolved');
+  if(S.dash.area.trim()) list = list.filter(c=>c.locationText.toLowerCase().includes(S.dash.area.toLowerCase()));
+  if(S.dash.priority.length) list = list.filter(c=>S.dash.priority.includes(c.priority));
+  if(S.dash.category.length) list = list.filter(c=>S.dash.category.includes(c.category));
+  if(S.dash.needsReview) list = list.filter(c=>c.priorityUnderReview);
+
+  return `
+  <div class="pad stack" style="padding-bottom:8px;">
+    <div class="row between">
+      <div><div class="eyebrow">${icon('grid')} Overview</div><h1 class="title">Dashboard</h1></div>
+      <div class="row" style="gap:6px;">
+        <button class="btn-link" id="officerSignOutBtn" style="font-size:11px;font-weight:700;">Sign out</button>
+        <button class="iconbtn" data-action="backToHome">${icon('x')}</button>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="lbl">${icon('clock')} Currently open</div><div class="num">${open}</div></div>
+      <div class="stat-box"><div class="lbl" style="color:var(--accent)">${icon('checkCircle')} Recently resolved</div><div class="num" style="color:var(--accent)">${resolved}</div></div>
+    </div>
+    ${needsReview>0 ? `<button class="quick-card" style="background:rgba(240,185,94,.1);border-color:rgba(240,185,94,.3);" data-action="toggleNeedsReview">
+      <span class="row gap10">${icon('alertTriangle')} <b style="font-size:12.5px;color:var(--warning);">${needsReview} High-priority claim${needsReview===1?'':'s'} need review</b></span>
+      <span class="muted" style="font-size:11px;font-weight:700;">${S.dash.needsReview?'Showing only these':'Tap to filter'}</span>
+    </button>` : ''}
+
+    <div class="filter-panel">
+      <div class="filter-head"><span class="row gap6" style="font-weight:800;font-size:13px;">${icon('filter')} Filter by</span><button class="btn-text" id="clearFilters">Clear all</button></div>
+      <div class="seg-tabs"><button data-dstatus="all" class="${S.dash.status==='all'?'active':''}">All</button><button data-dstatus="open" class="${S.dash.status==='open'?'active':''}">Open</button><button data-dstatus="resolved" class="${S.dash.status==='resolved'?'active':''}">Resolved</button></div>
+      <div class="filter-group"><div class="fg-label">${icon('mapPin')} By area</div><div class="search-shell" style="padding:10px 14px;">${icon('search')}<input id="dashArea" placeholder="e.g. Gandhi Road, Mumbai" value="${S.dash.area}"/></div></div>
+      <div class="filter-group"><div class="fg-label">By priority</div><div class="chip-row">${['Low','Medium','High'].map(p=>`<button class="chip priority-${p.toLowerCase()} ${S.dash.priority.includes(p)?'selected':''}" data-dprio="${p}">${p}</button>`).join('')}</div></div>
+      <div class="filter-group"><div class="fg-label">By category</div><div class="chip-row">${CATEGORIES.map(c=>`<button class="chip ${S.dash.category.includes(c.id)?'selected':''}" data-dcat="${c.id}">${c.label}</button>`).join('')}</div></div>
+    </div>
+  </div>
+  <div class="pad" style="padding-top:0;">
+    <p class="muted" style="font-size:12px;font-weight:700;margin-bottom:10px;">${list.length} request${list.length===1?'':'s'}</p>
+    <div class="stack">${list.length ? list.map(officerCard).join('') : emptyState('filter','No matches','Try clearing a filter.')}</div>
+  </div>
+  <button class="fab" data-action="goNewFromDash">${icon('plus','icon-lg')}</button>`;
+}
+function officerCard(c){
+  return `
+  <div class="complaint-card" data-action="openOfficerDetail" data-id="${c.id}">
+    <div class="top-row">
+      <div><div class="ctitle">${c.title}</div><div class="ccat">${catLabel(c.category)} · ${c.locationText}</div></div>
+      <div class="stack" style="gap:6px;align-items:flex-end;">${priorityBadge(c.priority)}${statusBadge(c.status)}</div>
+    </div>
+    <div class="cfoot"><span>${c.anonymous?'Anonymous':c.private?'Resident (private)':c.authorName}${c.priorityUnderReview?' · needs priority review':''}</span><span>Opened ${c.openedAgo}</span></div>
+  </div>`;
+}
+
+/* ============ OFFICER DETAIL ============ */
+function screenOfficerDetail(){
+  const c = getComplaint(S.activeId);
+  if(!c) return emptyState('fileText','Complaint not found','It may have been removed.');
+  return `
+  <div class="topbar"><button class="iconbtn" data-action="back">${icon('chevronLeft')}</button><div class="topbar-title">Officer view</div><span style="width:36px;"></span></div>
+  <div class="detail-hero"><div class="head-row">${statusBadge(c.status)}${priorityBadge(c.priority)}</div><h1 class="title" style="font-size:21px;margin-top:8px;">${c.title}</h1><div class="dept-row">${icon('shield')} ${catLabel(c.category)} · <b style="color:var(--text-dim)">${catDept(c.category)}</b></div></div>
+
+  <div class="pad stack" style="padding-top:0;">
+    <div class="card stack" style="gap:16px;">
+      <div><h2 class="section-title">${icon('fileText')} Description</h2><p class="muted" style="font-size:13px;line-height:1.55;">${c.description}</p></div>
+      <div class="divider"></div>
+      <div><h2 class="section-title">${icon('mapPin')} Location</h2><p style="font-size:13px;font-weight:600;color:var(--text-dim);">${c.locationText}</p></div>
+      <div class="divider"></div>
+      <div><h2 class="section-title">${icon('user')} Reported by</h2><p style="font-size:13px;font-weight:600;color:var(--text-dim);">${c.anonymous?'Anonymous request':c.private?'Resident (private)':c.authorName}${c.phone?' · '+c.phone:''}</p></div>
+      ${c.pastReports.length ? `<div class="divider"></div><div><h2 class="section-title">${icon('fileText')} Past reports attached</h2><div class="stack" style="gap:8px;">${c.pastReports.map(r=>`<div class="pastref-item"><span>${r}</span></div>`).join('')}</div></div>` : ''}
+    </div>
+
+    ${c.priorityUnderReview ? `
+    <div class="review-card">
+      <div class="row gap8" style="font-weight:800;font-size:13px;color:var(--warning);">${icon('alertTriangle')} Priority review needed</div>
+      <p class="faint" style="font-size:11.5px;font-weight:600;">Citizen marked this High priority ${c.priorityMarkedAgo||'recently'}. Confirm it or adjust within 3 days.${c.pastReports.length?' A prior report is attached, which supports the High claim.':''}</p>
+      <div class="action-row">
+        <button class="btn btn-primary" style="flex:1;" data-review="confirm">Confirm High</button>
+        <button class="btn btn-ghost" style="flex:1;" data-review="Medium">Downgrade to Medium</button>
+        <button class="btn btn-ghost" style="flex:1;" data-review="Low">Downgrade to Low</button>
+      </div>
+    </div>` : ''}
+
+    <div class="card stack">
+      <h2 class="section-title" style="margin-bottom:0;">Update status</h2>
+      <div class="seg-tabs"><button data-ostatus="open" class="${c.status==='open'?'active':''}">Open</button><button data-ostatus="in_progress" class="${c.status==='in_progress'?'active':''}">In progress</button><button data-ostatus="resolved" class="${c.status==='resolved'?'active':''}">Resolved</button></div>
+      <div class="field"><label>Priority</label><div class="chip-row">${['Low','Medium','High'].map(p=>`<button class="chip priority-${p.toLowerCase()} ${c.priority===p?'selected':''}" data-opriority="${p}">${p}</button>`).join('')}</div></div>
+    </div>
+
+    ${c.status!=='resolved' && c.status!=='resolution_submitted' ? `
+    <div class="card stack">
+      <h2 class="section-title" style="margin-bottom:0;">Submit resolution</h2>
+      <p class="faint" style="font-size:11.5px;font-weight:600;margin-top:-6px;">Attach a photo or note as proof — this moves the complaint to "Resolution submitted" and the citizen has 7 days to confirm.</p>
+      <div class="img-thumbs">${(S.ui.proofImages||[]).map((im,i)=>`<div class="img-thumb"><img src="${im}"/><button class="rm" data-rmproofimg="${i}">${icon('x')}</button></div>`).join('')}<button class="add-photo" id="proofAddPhoto">${icon('camera')}<span>Add photo</span></button><input type="file" id="proofFileInput" accept="image/*" style="display:none;"/></div>
+      <div class="input-shell"><textarea id="proofNote" placeholder="Describe how this was resolved...">${S.ui.proofNote||''}</textarea></div>
+      <button class="btn btn-primary" id="submitProofBtn">${icon('image')} Submit resolution</button>
+    </div>` : ''}
+
+    <div class="card stack">
+      <h2 class="section-title" style="margin-bottom:0;">Log an update</h2>
+      <div class="input-shell"><textarea id="officerNote" placeholder="e.g. Crew dispatched, ETA 2 days..."></textarea></div>
+      <button class="btn btn-ghost" id="logUpdateBtn">${icon('edit')} Log update</button>
+    </div>
+
+    <div class="card">
+      <div class="row between" style="margin-bottom:14px;"><h2 class="section-title" style="margin-bottom:0;">Full history</h2><button class="btn-link" id="verifyLedgerBtn" style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;">${icon('shield')} Verify integrity</button></div>
+      <div class="timeline">${c.history.map(h=>`<div class="tl-item"><div class="tl-dot">${icon(h.icon||'checkCircle')}</div><div class="tl-body"><div class="tl-head"><span class="tl-label">${h.label}</span><span class="tl-time">${h.date}</span></div>${h.who?`<div class="tl-who">${h.who} · ${h.role}</div>`:''}${h.note?`<div class="tl-note">${h.note}</div>`:''}${h.hash?`<div class="tl-hash" style="font-family:monospace;font-size:10px;color:var(--text-dim);opacity:.7;margin-top:2px;">#${h.hash}</div>`:''}</div></div>`).join('')}</div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">${icon('messageCircle')} Chat with citizen</h2>
+      <p class="faint" style="font-size:11px;font-weight:600;margin-top:-6px;margin-bottom:12px;">You can open this chat any time to ask the citizen for more details.</p>
+      <div class="chat-thread">${c.chat.length ? c.chat.map(m=>`<div class="msg ${m.from==='officer'?'mine':''}"><div class="bubble">${m.text}</div><div class="meta">${m.from==='officer'?'You':m.name} · ${m.date}</div></div>`).join('') : `<div class="empty-chat">No messages yet.</div>`}</div>
+      <div class="chat-input-row"><div class="input-shell"><input id="officerChatInput" placeholder="Ask the citizen for details..."/></div><button class="send-btn" id="officerChatSend">${icon('send')}</button></div>
+    </div>
+  </div>`;
+}
+
+/* ============ EVENT BINDING ============ */
+function bindScreenEvents(){
+  const app = document.getElementById('app');
+  app.querySelectorAll('[data-action="back"]').forEach(el=>el.addEventListener('click', back));
+
+  if(S.screen==='login') bindLogin();
+  if(S.screen==='otp') bindOtp();
+  if(S.screen==='officerLogin') bindOfficerLogin();
+  if(S.screen==='home') bindHome();
+  if(S.screen==='newComplaint' || S.screen==='anonComplaint') bindComplaintForm();
+  if(S.screen==='detail') bindDetail();
+  if(S.screen==='dashboard') bindDashboard();
+  if(S.screen==='officerDetail') bindOfficerDetail();
+}
+
+function bindLogin(){
+  const phoneInput = document.getElementById('phoneInput');
+  phoneInput.addEventListener('input', e=>{ S.phone = e.target.value.replace(/\D/g,'').slice(0,10); e.target.value = S.phone; });
+  document.getElementById('getOtpBtn').addEventListener('click', async ()=>{
+    if(S.phone.length < 10){ toast('Enter a valid 10-digit number', false); return; }
+    try{
+      await api('/api/auth/otp/request', {method:'POST', body:{phone: S.phone}});
+      go('otp');
+    } catch(err){ toast(err.message, false); }
+  });
+  document.getElementById('anonEntryBtn').addEventListener('click', ()=>{ S.editId=null; S.draft=null; go('anonComplaint'); });
+}
+function bindOtp(){
+  const boxes = Array.from(document.querySelectorAll('.otpDigit'));
+  boxes.forEach((b,i)=>{ b.addEventListener('input', ()=>{ b.value=b.value.replace(/\D/g,'').slice(0,1); if(b.value && boxes[i+1]) boxes[i+1].focus(); }); });
+  document.getElementById('verifyBtn').addEventListener('click', async ()=>{
+    const code = boxes.map(b=>b.value||'').join('');
+    try{
+      const data = await api('/api/auth/otp/verify', {method:'POST', body:{phone:S.phone, code}});
+      S.authed = true; S.token = data.token; S.citizenVerified = !!data.verified;
+      localStorage.setItem('civic_token', data.token);
+      localStorage.setItem('civic_phone', S.phone);
+      await loadMine();
+      toast('Number verified'); go('home', {push:false}); S.history=[];
+    } catch(err){ toast(err.message, false); }
+  });
+  document.getElementById('resendBtn').addEventListener('click', async ()=>{
+    try{ await api('/api/auth/otp/request', {method:'POST', body:{phone:S.phone}}); toast('OTP resent'); }
+    catch(err){ toast(err.message, false); }
+  });
+}
+function bindOfficerLogin(){
+  const input = document.getElementById('officerKeyInput');
+  input.addEventListener('input', e=>{ S.officerKeyInput = e.target.value; });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('officerLoginBtn').click(); });
+  document.getElementById('officerLoginBtn').addEventListener('click', async ()=>{
+    const key = (S.officerKeyInput||'').trim();
+    if(!key){ S.officerLoginError='Enter the officer key'; render(); return; }
+    try{
+      await api('/api/auth/officer-login', {method:'POST', body:{key}});
+      S.officerKey = key; S.officerSignedIn = true; S.officerLoginError=''; S.officerKeyInput='';
+      localStorage.setItem('civic_officer_key', key);
+      localStorage.setItem('civic_officer_signed_in', 'true');
+      await loadAll();
+      toast('Signed in as officer');
+      go('dashboard', {push:false}); S.history=[];
+    } catch(err){
+      S.officerLoginError = err.message || 'Incorrect officer key';
+      render();
+    }
+  });
+}
+function bindHome(){
+  const app = document.getElementById('app');
+  document.querySelector('[data-action="goNew"]').addEventListener('click', ()=>{ S.draft=null; S.editId=null; go('newComplaint'); });
+  document.querySelector('[data-action="goDashboard"]').addEventListener('click', ()=>enterOfficerMode());
+  const verifyBtn = document.querySelector('[data-action="verifyIdentity"]');
+  if(verifyBtn) verifyBtn.addEventListener('click', async ()=>{
+    try{
+      const data = await api('/api/auth/verify-identity', {method:'POST', auth:true});
+      S.citizenVerified = !!data.verified;
+      toast('Identity verified — your reports now carry a trust badge'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+  document.getElementById('homeSearch').addEventListener('input', e=>{ S.homeSearch=e.target.value; renderKeepScroll(); });
+  app.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click', ()=>{ S.homeFilter=b.dataset.filter; render(); }));
+  app.querySelectorAll('[data-action="openDetail"]').forEach(el=>el.addEventListener('click', ()=>{ openDetail(el.dataset.id); }));
+}
+
+function bindDetail(){
+  const app = document.getElementById('app');
+  const c = getComplaint(S.activeId);
+  const ui = S.ui;
+
+  const verifyLedgerBtn = document.getElementById('verifyLedgerBtn');
+  if(verifyLedgerBtn) verifyLedgerBtn.addEventListener('click', async ()=>{
+    try{
+      const result = await api('/api/audit/verify', {});
+      if(result.valid) toast(`Ledger verified — ${result.checked} entries, chain intact`);
+      else toast(`Tampering detected at entry #${result.brokenAt.id} (${result.brokenAt.complaintId})`, false);
+    } catch(err){ toast(err.message, false); }
+  });
+  const upvoteBtn = document.getElementById('upvoteBtn');
+  if(upvoteBtn) upvoteBtn.addEventListener('click', async ()=>{
+    if(c.voted) return;
+    try{ upsertComplaint(await api(`/api/complaints/${c.id}/upvote`, {method:'POST', auth:true})); render(); }
+    catch(err){ toast(err.message, false); }
+  });
+  const verifyBtn = document.getElementById('verifyBtn');
+  if(verifyBtn) verifyBtn.addEventListener('click', async ()=>{
+    if(c.verifiedByMe) return;
+    try{ upsertComplaint(await api(`/api/complaints/${c.id}/verify`, {method:'POST', auth:true})); render(); }
+    catch(err){ toast(err.message, false); }
+  });
+
+  document.getElementById('chatSend')?.addEventListener('click', ()=>sendChat(c,'citizen'));
+  document.getElementById('chatInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(c,'citizen'); });
+
+  const editBtn = app.querySelector('[data-action="editComplaint"]');
+  if(editBtn) editBtn.addEventListener('click', ()=>{ S.editId = c.id; S.draft=null; go('newComplaint'); });
+
+  // resolution proof interactions
+  const openConfirm = document.getElementById('openConfirm');
+  if(openConfirm) openConfirm.addEventListener('click', ()=>{ ui.confirmOpen=c.id; ui.confirmRating=0; ui.confirmNote=''; ui.confirmImages=[]; render(); });
+  const openReopen = document.getElementById('openReopen');
+  if(openReopen) openReopen.addEventListener('click', ()=>{ ui.reopenOpen=c.id; ui.reopenReason=''; render(); });
+  const cancelConfirm = document.getElementById('cancelConfirm');
+  if(cancelConfirm) cancelConfirm.addEventListener('click', ()=>{ ui.confirmOpen=null; render(); });
+  const cancelReopen = document.getElementById('cancelReopen');
+  if(cancelReopen) cancelReopen.addEventListener('click', ()=>{ ui.reopenOpen=null; render(); });
+
+  const stars = document.getElementById('confirmStars');
+  if(stars) stars.querySelectorAll('[data-star]').forEach(b=>b.addEventListener('click', ()=>{ ui.confirmRating = +b.dataset.star; render(); }));
+  const confirmSuggestion = document.getElementById('confirmSuggestion');
+  if(confirmSuggestion) confirmSuggestion.addEventListener('input', e=>{ ui.confirmNote = e.target.value; });
+  const confirmAddPhoto = document.getElementById('confirmAddPhoto');
+  if(confirmAddPhoto){
+    const fi = document.getElementById('confirmFileInput');
+    confirmAddPhoto.addEventListener('click', ()=>fi.click());
+    fi.addEventListener('change', async ()=>{
+      const files = Array.from(fi.files).slice(0,3);
+      const urls = await Promise.all(files.map(fileToDataUrl));
+      urls.forEach(u=>ui.confirmImages.push(u));
+      render();
+    });
+  }
+  app.querySelectorAll('[data-rmconfirmimg]').forEach(b=>b.addEventListener('click', ()=>{ ui.confirmImages.splice(+b.dataset.rmconfirmimg,1); render(); }));
+
+  const submitConfirm = document.getElementById('submitConfirm');
+  if(submitConfirm) submitConfirm.addEventListener('click', async ()=>{
+    if(ui.confirmRating===0) return;
+    try{
+      const full = await api(`/api/complaints/${c.id}/confirm`, {method:'POST', auth:true, body:{
+        rating: ui.confirmRating, suggestion: ui.confirmNote.trim(), images: ui.confirmImages,
+      }});
+      upsertComplaint(full);
+      ui.confirmOpen=null; toast('Resolution confirmed — thank you'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+
+  const reopenTextarea = document.getElementById('reopenReason');
+  if(reopenTextarea) reopenTextarea.addEventListener('input', e=>{ ui.reopenReason=e.target.value; });
+  const submitReopen = document.getElementById('submitReopen');
+  if(submitReopen) submitReopen.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/reopen`, {method:'POST', auth:true, body:{reason: ui.reopenReason.trim()}});
+      upsertComplaint(full);
+      ui.reopenOpen=null; toast('Complaint reopened'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+
+  const simulateWeek = document.getElementById('simulateWeek');
+  if(simulateWeek) simulateWeek.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/simulate-timeout`, {method:'POST'});
+      upsertComplaint(full);
+      toast('7 days simulated — auto-resolved as unverified', false); render();
+    } catch(err){ toast(err.message, false); }
+  });
+
+  const reopenResolvedBtn = document.getElementById('reopenResolvedBtn');
+  if(reopenResolvedBtn) reopenResolvedBtn.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/reopen`, {method:'POST', auth:true, body:{reason:''}});
+      upsertComplaint(full);
+      toast('Complaint reopened'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+  const escalateBtn = document.getElementById('escalateBtn');
+  if(escalateBtn) escalateBtn.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/escalate`, {method:'POST', auth:true});
+      upsertComplaint(full);
+      toast('Escalated — a senior officer has been notified'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+}
+
+function bindDashboard(){
+  const app = document.getElementById('app');
+  const signOutBtn = document.getElementById('officerSignOutBtn');
+  if(signOutBtn) signOutBtn.addEventListener('click', ()=>{ officerSignOut(); toast('Signed out of officer view'); });
+  document.querySelector('[data-action="backToHome"]').addEventListener('click', async ()=>{
+    S.role='citizen';
+    if(S.authed){ try{ await loadMine(); } catch(err){ toast(err.message, false); } }
+    go(S.authed?'home':'login', {push:false}); S.history=[];
+  });
+  document.getElementById('clearFilters').addEventListener('click', ()=>{ S.dash={status:'all',area:'',priority:[],category:[],needsReview:false}; render(); });
+  app.querySelectorAll('[data-dstatus]').forEach(b=>b.addEventListener('click', ()=>{ S.dash.status=b.dataset.dstatus; render(); }));
+  document.getElementById('dashArea').addEventListener('input', e=>{ S.dash.area=e.target.value; renderKeepScroll(); });
+  app.querySelectorAll('[data-dprio]').forEach(b=>b.addEventListener('click', ()=>{ const p=b.dataset.dprio; const i=S.dash.priority.indexOf(p); if(i>-1) S.dash.priority.splice(i,1); else S.dash.priority.push(p); render(); }));
+  app.querySelectorAll('[data-dcat]').forEach(b=>b.addEventListener('click', ()=>{ const cId=b.dataset.dcat; const i=S.dash.category.indexOf(cId); if(i>-1) S.dash.category.splice(i,1); else S.dash.category.push(cId); render(); }));
+  const reviewToggle = app.querySelector('[data-action="toggleNeedsReview"]');
+  if(reviewToggle) reviewToggle.addEventListener('click', ()=>{ S.dash.needsReview = !S.dash.needsReview; render(); });
+  app.querySelectorAll('[data-action="openOfficerDetail"]').forEach(el=>el.addEventListener('click', ()=>{ openOfficerDetail(el.dataset.id); }));
+  const fabEl = app.querySelector('[data-action="goNewFromDash"]');
+  if(fabEl) fabEl.addEventListener('click', ()=>{ S.draft=null; S.editId=null; go('newComplaint'); });
+}
+
+function bindOfficerDetail(){
+  const app = document.getElementById('app');
+  const c = getComplaint(S.activeId);
+
+  const verifyLedgerBtn = document.getElementById('verifyLedgerBtn');
+  if(verifyLedgerBtn) verifyLedgerBtn.addEventListener('click', async ()=>{
+    try{
+      const result = await api('/api/audit/verify', {});
+      if(result.valid) toast(`Ledger verified — ${result.checked} entries, chain intact`);
+      else toast(`Tampering detected at entry #${result.brokenAt.id} (${result.brokenAt.complaintId})`, false);
+    } catch(err){ toast(err.message, false); }
+  });
+
+  app.querySelectorAll('[data-ostatus]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/status`, {method:'POST', officer:true, body:{status:b.dataset.ostatus}});
+      upsertComplaint(full); render(); toast('Status updated');
+    } catch(err){ toast(err.message, false); }
+  }));
+  app.querySelectorAll('[data-opriority]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/priority`, {method:'POST', officer:true, body:{priority:b.dataset.opriority}});
+      upsertComplaint(full); render();
+    } catch(err){ toast(err.message, false); }
+  }));
+
+  app.querySelectorAll('[data-review]').forEach(b=>b.addEventListener('click', async ()=>{
+    try{
+      const full = await api(`/api/complaints/${c.id}/priority-review`, {method:'POST', officer:true, body:{action:b.dataset.review}});
+      upsertComplaint(full);
+      toast('Priority review recorded'); render();
+    } catch(err){ toast(err.message, false); }
+  }));
+
+  const proofAddPhoto = document.getElementById('proofAddPhoto');
+  if(proofAddPhoto){
+    S.ui.proofImages = S.ui.proofImages || [];
+    const fi = document.getElementById('proofFileInput');
+    proofAddPhoto.addEventListener('click', ()=>fi.click());
+    fi.addEventListener('change', async ()=>{
+      const files = Array.from(fi.files).slice(0,3);
+      const urls = await Promise.all(files.map(fileToDataUrl));
+      urls.forEach(u=>S.ui.proofImages.push(u));
+      render();
+    });
+  }
+  app.querySelectorAll('[data-rmproofimg]').forEach(b=>b.addEventListener('click', ()=>{ S.ui.proofImages.splice(+b.dataset.rmproofimg,1); render(); }));
+  const proofNote = document.getElementById('proofNote');
+  if(proofNote) proofNote.addEventListener('input', e=>{ S.ui.proofNote = e.target.value; });
+  const submitProofBtn = document.getElementById('submitProofBtn');
+  if(submitProofBtn) submitProofBtn.addEventListener('click', async ()=>{
+    const note = (S.ui.proofNote||'').trim();
+    const imgs = S.ui.proofImages||[];
+    if(!note && !imgs.length){ toast('Add a note or photo as proof', false); return; }
+    try{
+      const full = await api(`/api/complaints/${c.id}/resolution-proof`, {method:'POST', officer:true, body:{note, images:imgs}});
+      upsertComplaint(full);
+      S.ui.proofImages=[]; S.ui.proofNote='';
+      toast('Resolution submitted — citizen has 7 days to confirm');
+      render();
+    } catch(err){ toast(err.message, false); }
+  });
+
+  document.getElementById('logUpdateBtn').addEventListener('click', async ()=>{
+    const val = document.getElementById('officerNote').value.trim();
+    if(!val){ toast('Write an update first', false); return; }
+    try{
+      const full = await api(`/api/complaints/${c.id}/officer-note`, {method:'POST', officer:true, body:{note:val}});
+      upsertComplaint(full);
+      toast('Update logged'); render();
+    } catch(err){ toast(err.message, false); }
+  });
+  document.getElementById('officerChatSend').addEventListener('click', ()=>sendChat(c,'officer'));
+  document.getElementById('officerChatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(c,'officer'); });
+}
+
+async function sendChat(c, from){
+  const inputId = from==='citizen' ? 'chatInput' : 'officerChatInput';
+  const input = document.getElementById(inputId);
+  if(!input || input.disabled) return;
+  const val = input.value.trim();
+  if(!val) return;
+  try{
+    const opts = {method:'POST', body:{role:from, text:val}};
+    if(from==='citizen') opts.auth = true; else opts.officer = true;
+    const full = await api(`/api/complaints/${c.id}/chat`, opts);
+    upsertComplaint(full);
+    input.value='';
+    render();
+  } catch(err){ toast(err.message, false); }
+}
+
+/* ---- complaint form binding ---- */
+function bindComplaintForm(){
+  const app = document.getElementById('app');
+  const d = S.draft;
+  const anonymous = S.screen==='anonComplaint';
+  const editing = !!S.editId;
+
+  document.querySelector('[data-action="closeForm"]').addEventListener('click', ()=>{
+    S.draft=null; S.editId=null;
+    if(S.role==='officer') go('dashboard', {push:false});
+    else if(S.authed) go('home', {push:false});
+    else go('login', {push:false});
+  });
+
+  document.getElementById('f-title').addEventListener('input', e=>{ d.title=e.target.value; });
+  document.getElementById('f-desc').addEventListener('input', e=>{ d.description=e.target.value; });
+  app.querySelectorAll('[data-cat]').forEach(b=>b.addEventListener('click', async ()=>{
+    d.category=b.dataset.cat; render();
+    try{ d.similar = await api(`/api/complaints/similar?category=${encodeURIComponent(d.category)}`, {}); renderKeepScroll(); }
+    catch(err){ /* non-critical */ }
+  }));
+  app.querySelectorAll('[data-prio]').forEach(b=>b.addEventListener('click', ()=>{ d.priority=b.dataset.prio; render(); }));
+
+  app.querySelectorAll('[data-upvote-existing]').forEach(b=>b.addEventListener('click', async ()=>{
+    const id = b.dataset.upvoteExisting;
+    S.draft=null; S.editId=null;
+    try{
+      await api(`/api/complaints/${id}/upvote`, {method:'POST', auth:true});
+      toast('Upvoted the existing report instead');
+    } catch(err){ toast(err.message, false); }
+    openDetail(id);
+  }));
+
+  document.getElementById('f-location').addEventListener('click', ()=>{
+    d.locationCaptured=true; d.lat=(28.55+Math.random()*0.1).toFixed(4); d.lng=(77.15+Math.random()*0.15).toFixed(4); render();
+  });
+
+  const fileInput = document.getElementById('f-fileinput');
+  document.getElementById('f-addphoto').addEventListener('click', ()=>fileInput.click());
+  fileInput.addEventListener('change', async ()=>{
+    const files = Array.from(fileInput.files).slice(0,4);
+    const urls = await Promise.all(files.map(fileToDataUrl));
+    urls.forEach(u=>d.images.push(u));
+    render();
+  });
+  app.querySelectorAll('[data-rmimg]').forEach(b=>b.addEventListener('click', ()=>{ d.images.splice(+b.dataset.rmimg,1); render(); }));
+
+  document.getElementById('f-addref').addEventListener('click', addRef);
+  document.getElementById('f-refinput').addEventListener('keydown', e=>{ if(e.key==='Enter') addRef(); });
+  function addRef(){ const inp=document.getElementById('f-refinput'); const val=inp.value.trim(); if(!val) return; d.pastReports.push(val); inp.value=''; render(); }
+  app.querySelectorAll('[data-rmref]').forEach(b=>b.addEventListener('click', ()=>{ d.pastReports.splice(+b.dataset.rmref,1); render(); }));
+
+  if(anonymous && !editing){ const phoneEl=document.getElementById('f-phone'); if(phoneEl) phoneEl.addEventListener('input', e=>{ d.phone=e.target.value; }); }
+
+  const privToggle = document.getElementById('f-private-toggle');
+  if(privToggle) privToggle.addEventListener('click', ()=>{ d.private = !d.private; render(); });
+
+  document.getElementById('f-submit').addEventListener('click', async ()=>{
+    if(!d.title.trim()){ toast('Add a title', false); return; }
+    if(!d.category){ toast('Choose a category', false); return; }
+    if(!d.description.trim()){ toast('Describe the issue', false); return; }
+
+    const submitBtn = document.getElementById('f-submit');
+    submitBtn.disabled = true;
+
+    if(editing){
+      try{
+        const full = await api(`/api/complaints/${S.editId}`, {method:'PATCH', auth:true, body:{
+          title: d.title.trim(), category: d.category, description: d.description.trim(),
+          private: !!d.private,
+        }});
+        upsertComplaint(full);
+        S.draft=null; S.editId=null;
+        toast('Changes saved');
+        go('detail', {id: full.id, push:false});
+      } catch(err){ toast(err.message, false); submitBtn.disabled=false; }
+      return;
+    }
+
+    const priority = d.priority || 'Medium';
+    try{
+      const full = await api('/api/complaints', {method:'POST', auth:true, body:{
+        title: d.title.trim(), category: d.category, description: d.description.trim(), priority,
+        anonymous: anonymous ? 'true' : 'false',
+        private: (!anonymous && d.private) ? 'true' : 'false',
+        lat: d.lat || '', lng: d.lng || '',
+        phone: anonymous ? d.phone : undefined,
+        pastReports: JSON.stringify(d.pastReports),
+        images: d.images,
+      }});
+      upsertComplaint(full);
+      S.draft=null;
+      toast(anonymous ? 'Submitted anonymously' : 'Complaint submitted');
+      if(anonymous){ go('login', {push:false}); }
+      else if(S.role==='officer'){ await loadAll(); go('dashboard', {push:false}); S.history=[]; }
+      else { go('home', {push:false}); S.history=[]; }
+    } catch(err){ toast(err.message, false); submitBtn.disabled=false; }
+  });
+}
+
+/* ============ ROLE SWITCH ============ */
+document.getElementById('rs-citizen').addEventListener('click', async ()=>{
+  S.role='citizen';
+  if(S.authed){ try{ await loadMine(); } catch(err){ toast(err.message, false); } }
+  go(S.authed?'home':'login', {push:false}); S.history=[];
+});
+document.getElementById('rs-officer').addEventListener('click', async ()=>{
+  S.history=[];
+  await enterOfficerMode({push:false});
+});
+
+/* ============ INIT ============ */
+(async function init(){
+  render(); // show something immediately
+  if(S.token && S.phone){
+    try{
+      const me = await api('/api/auth/me', {auth:true});
+      S.authed = true; S.citizenVerified = !!me.verified; S.phone = me.phone;
+      await loadMine();
+      go('home', {push:false});
+    } catch(err){
+      // stale/invalid session — fall back to login
+      S.token = null; localStorage.removeItem('civic_token'); localStorage.removeItem('civic_phone');
+      go('login', {push:false});
+    }
+  }
+})();
+</script>
+</body>
+</html>
